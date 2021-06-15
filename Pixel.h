@@ -15,25 +15,41 @@
 #define PIXEL_H
 
 #include <vector>
+#include <memory>
 
 class Pixel {
 private:
     bool i_fix_ = false;
     bool j_fix_ = false;
-    const int i0_;
-    const int j0_;
     double i_;
     double j_;
-    const double r_;
-    const double g_;
-    const double b_;
-    std::vector<Pixel> neighbors_;
+    double i__;
+    double j__;
+    double r_ = 0.0;
+    double g_ = 0.0;
+    double b_ = 0.0;
+    std::vector<std::shared_ptr<Pixel>> adjacent_;
+    std::vector<std::shared_ptr<Pixel>> diagonal_;
     
 public:
+    Pixel(int i, int j);
     Pixel(int i, int j, double r, double g, double b);
-    const double r() const;
-    const double g() const;
-    const double b() const;
+    const double get_r() const;
+    void set_r(const double d);
+    const double get_g() const;
+    void set_g(const double d);
+    const double get_b() const;
+    void set_b(const double d);
+    const double get_i() const;
+    void set_i(const double d);
+    const double get_j() const;
+    void set_j(const double d);
+    const int count_adjacent() const;
+    std::shared_ptr<Pixel> get_adjacent(const int i) const;
+    void add_adjacent(std::shared_ptr<Pixel> pixel);
+    const int count_diagonal() const;
+    std::shared_ptr<Pixel> get_diagonal(const int i) const;
+    void add_diagonal(std::shared_ptr<Pixel> pixel);
 };
 
 #endif /* PIXEL_H */
