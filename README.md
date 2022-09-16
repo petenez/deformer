@@ -19,6 +19,29 @@ deformer/source/main.cpp contains plenty of ready-made demonstrations of how to 
 ## Relaxation options
 The basic gradient descent relaxation for the elastic systems comes with two modifiers: to eliminate drift and to limit step size. Elimination of drift means that any rigid body motions and rotations resulting from a relaxation step are eliminated. Note that Newton's third law is not exactly satisfied by the implementation due to simpler code and higher performance. Limiting the step size means that the updates to the nodes' positions are capped. This can help with stability issues in some instances. More precisely, the magnitude of the position updates is modulated monotonically by a hyperbolic tangent function. The coefficient allows to scale the maximum update magnitude with respect to the mean update magnitude.
 
+## Forces on nodes
+The following image depicting a 3-by-3 grid of nodes helps demonstrate the forces on the nodes. Note that each node has four neighbors.
+
+<img src="https://github.com/petenez/deformer/blob/main/springs.png" width="400">
+
+For a node <img src="https://latex.codecogs.com/svg.image?n">, the force on it is given by
+
+<img src="https://latex.codecogs.com/svg.image?F_n=\sum_{m}\varsigma_{nm}\left(\left\lbrace\begin{matrix}\frac{d_{nm}-d_{nm}^0}{d_{nm}^0}\widehat{\textbf{r}}_{nm},&d_{nm}^0>0\\0,&d_{nm}^0\leq0\\\end{matrix}\right.&plus;\sum_{l,l\neq&space;m}\frac{d_{ml}^0-d_{ml}}{d_{ml}}\widehat{\textbf{r}}_{nm}\right)">,
+
+where
+* node <img src="https://latex.codecogs.com/svg.image?m"> is a neighbor of node <img src="https://latex.codecogs.com/svg.image?n">
+* <img src="https://latex.codecogs.com/svg.image?\varsigma_{nm}"> is the stiffness of the bond between the nodes <img src="https://latex.codecogs.com/svg.image?n"> and <img src="https://latex.codecogs.com/svg.image?m"> (average of their individual stiffnesses)
+* <img src="https://latex.codecogs.com/svg.image?d_{nm}"> is the distance between the nodes <img src="https://latex.codecogs.com/svg.image?n"> and <img src="https://latex.codecogs.com/svg.image?m">
+* <img src="https://latex.codecogs.com/svg.image?d_{nm}^0"> is the equilibrium distance between the nodes <img src="https://latex.codecogs.com/svg.image?n"> and <img src="https://latex.codecogs.com/svg.image?m"> (average of their individual equilibrium distances)
+* <img src="https://latex.codecogs.com/svg.image?\widehat{\textbf{r}}_{nm}"> is the unit vector in the direction of <img src="https://latex.codecogs.com/svg.image?\textbf{r}_m-\textbf{r}_n">
+* node <img src="https://latex.codecogs.com/svg.image?l"> is another neighbor of node <img src="https://latex.codecogs.com/svg.image?n">
+* <img src="https://latex.codecogs.com/svg.image?d_{ml}^0"> is the dimensionless equilibrium distance between the nodes <img src="https://latex.codecogs.com/svg.image?m"> and <img src="https://latex.codecogs.com/svg.image?l">; it is <img src="https://latex.codecogs.com/svg.image?2">, if node <img src="https://latex.codecogs.com/svg.image?l"> is opposite to node <img src="https://latex.codecogs.com/svg.image?m"> with respect to node <img src="https://latex.codecogs.com/svg.image?n">, and <img src="https://latex.codecogs.com/svg.image?\sqrt{2}"> otherwise
+* <img src="https://latex.codecogs.com/svg.image?d_{ml}"> is the distance between the nodes <img src="https://latex.codecogs.com/svg.image?m"> and <img src="https://latex.codecogs.com/svg.image?l">
+
+The first term inside the parentheses gives simple spring forces between node <img src="https://latex.codecogs.com/svg.image?n"> and its neighbors <img src="https://latex.codecogs.com/svg.image?m">, if both have greater-than-zero equilibrium length scales. If not, the bond between the nodes can shrink and expand freely. The second term inside the parentheses (the sum over <img src="https://latex.codecogs.com/svg.image?l">) gives spring forces that try to keep the ratio of the distances between nodes <img src="https://latex.codecogs.com/svg.image?m"> and <img src="https://latex.codecogs.com/svg.image?l">, and <img src="https://latex.codecogs.com/svg.image?n"> and <img src="https://latex.codecogs.com/svg.image?m"> as 2 or <img src="https://latex.codecogs.com/svg.image?\sqrt{2}"> depending on if nodes <img src="https://latex.codecogs.com/svg.image?m"> and <img src="https://latex.codecogs.com/svg.image?l"> are opposite to each other with respect to node <img src="https://latex.codecogs.com/svg.image?n"> or not. Effectively this results in scale-independent angular forces that try to push the nodes into a square lattice. If a node is at the edge of the grid and does not have all four neighbors, the corresponding terms are simply omitted.
+
+Note that there are no reaction forces; rather, rigid body motions and rotations can be eliminated in the relaxation. Alternatively, pixels can be fixed to prevent the system from drifting.
+
 ## Multiscale grid
 ...
 
