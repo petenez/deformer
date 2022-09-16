@@ -20,7 +20,7 @@ deformer/source/main.cpp contains plenty of ready-made demonstrations of how to 
 The basic gradient descent relaxation for the elastic systems comes with two modifiers: to eliminate drift and to limit step size. Elimination of drift means that any rigid body motions and rotations resulting from a relaxation step are eliminated. Note that Newton's third law is not exactly satisfied by the implementation due to simpler code and higher performance. Limiting the step size means that the updates to the nodes' positions are capped. This can help with stability issues in some instances. More precisely, the magnitude of the position updates is modulated monotonically by a hyperbolic tangent function. The coefficient allows to scale the maximum update magnitude with respect to the mean update magnitude.
 
 ## Forces on nodes
-The following image depicting a 3-by-3 grid of nodes helps demonstrate the forces on the nodes. Note that each node has four neighbors.
+The following diagram depicting a 3-by-3 grid of nodes helps demonstrate the forces on the nodes. Note that each node has four neighbors.
 
 <img src="https://github.com/petenez/deformer/blob/main/springs.png" width="400">
 
@@ -43,7 +43,13 @@ The first term inside the parentheses gives simple spring forces between node <i
 Note that there are no reaction forces; rather, rigid body motions and rotations can be eliminated in the relaxation. Alternatively, pixels can be fixed to prevent the system from drifting.
 
 ## Multiscale grid
-...
+To make relaxing the systems of nodes reasonably fast, the nodes are in a multiscale grid based on a full quadtree. The diagram below gives a one-dimensional example but this approach extends trivially to two dimensions.
+
+<img src="https://github.com/petenez/deformer/blob/main/multiscale.png" width="1000">
+
+In this example, the red nodes have been fixed in place. The blue nodes are "active nodes" whose positions are updated during relaxation based on the forces they experience. An active node never has either active children or an active parent; rather, an active node must have either active nephews/nieces or active uncles/aunts, or both. The cyan and magenta nodes are "sampled nodes" whose positions are up- and downsampled from their parents below them and from their children above them, respectively. The sampled nodes simply provide couplings between the different levels of the multiscale grid. Neighbors for the nodes to interact with are upsampled from their coarser parents' neighbors and downsampled from their neighbors' children. Downsampling simply takes the average of a node's children's positions. Upsampling on the other hand places a node a quarter of the way from its parent to its parent's neighbor. Given initial positions for the topmost "leaf nodes", all the other nodes' positions can be downsampled. After that, the active nodes positions can be updated and the sampled nodes up- and downsampled in an iterative fashion. When node positions are requested, the leaf nodes' positions can be upsampled starting from the active nodes. Note that when manipulating nodes (fixing or offsetting them, or setting their equilibrium length scale or their stiffness), the leaf nodes at the edges of the manipulated regions are treated. Inside and outside these regions, coarser grids of nodes are employed, as is demonstrated in the diagram above. For larger systems with a lower density of fixed and active leaf nodes, the reduction in computational effort can be orders of magnitude compared to a system where all nodes must be relaxed at full resolution.
+
+Note also that I am familiar with multigrid methods but that is not what I wanted to implement here.
 
 ## Visualization
 ...
