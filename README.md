@@ -20,7 +20,7 @@ deformer/source/main.cpp contains plenty of ready-made demonstrations of how to 
 The basic gradient descent relaxation for the elastic systems comes with two modifiers: to eliminate drift and to limit step size. Elimination of drift means that any rigid body motions and rotations resulting from a relaxation step are eliminated. Note that Newton's third law is not exactly satisfied by the implementation due to simpler code and higher performance. Limiting the step size means that the updates to the nodes' positions are capped. This can help with stability issues in some instances. More precisely, the magnitude of the position updates is modulated monotonically by a hyperbolic tangent function. The coefficient allows to scale the maximum update magnitude with respect to the mean update magnitude.
 
 ## Forces on nodes
-The following diagram depicting a 3-by-3 grid of nodes helps demonstrate the forces on the nodes. Note that each node has four neighbors.
+The following diagram depicting a 3-by-3 grid of nodes helps demonstrate the forces on the nodes. Note that each node has four neighbors (if not at the edge).
 
 <img src="https://github.com/petenez/deformer/blob/main/springs.png" width="400">
 
